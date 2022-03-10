@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<robot name="gimbal"
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <material name="black">
+    <color rgba="0.3 0.3 0.3 1"/>
+  </material>
+
+  <material name="gray">
+    <color rgba="0.75 0.75 0.75 1"/>
+  </material>
+
+  <link name="base_link"/>
+
+  <link name="yaw_link">
+    <inertial>
+      <origin xyz="0.00040222 -3.7419E-05 0.0069253" rpy="0 0 0" />
+      <mass value="0.47725" />
+      <inertia ixx="0.00020467" ixy="-6.1156E-07" ixz="2.3365E-06" iyy="0.00021048" iyz="3.0493E-07" izz="0.00026251" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rm_pioneer_description/meshes/standard_5/yaw_link.stl" />
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rm_pioneer_description/meshes/standard_5/yaw_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="yaw_joint" type="continuous">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="yaw_link" />
+    <axis xyz="0.033488 0 0.99944" />
+  </joint>
+
+  <link name="pitch_link">
+    <inertial>
+      <origin xyz="0.0076758 -0.025513 0.00040714" rpy="0 0 0" />
+      <mass value="1.9531" />
+      <inertia ixx="0.0013942" ixy="-1.1631E-07" ixz="6.1849E-06" iyy="0.0025618" iyz="2.4531E-06" izz="0.0020714" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rm_pioneer_description/meshes/standard_5/pitch_link.stl" />
+      </geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rm_pioneer_description/meshes/standard_5/pitch_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="pitch_joint" type="revolute">
+    <origin xyz="0.0032818 0 0.097945" rpy="0 0 0" />
+    <parent link="yaw_link" />
+    <child link="pitch_link" />
+    <axis xyz="0 0 0" />
+    <limit lower="-0.6" upper="0.5" effort="1.2" velocity="31"/>
+  </joint>
+
+  <link name="shooter_link" />
+
+  <joint name="shooter_joint" type="fixed">
+    <origin xyz="0 0 0.137" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="shooter_link" />
+  </joint>
+
+  <link name="camera_base_link">
+    <inertial>
+      <origin xyz="0.00057735 2.4263E-05 -0.0009663" rpy="0 0 0" />
+      <mass value="0.10434" />
+      <inertia ixx="2.4275E-05" ixy="7.727E-08" ixz="-9.9365E-08" iyy="4.5772E-05" iyz="-2.0213E-08" izz="6.0733E-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rm_pioneer_description/meshes/standard_5/camera_base_link.STL" />
+      </geometry>
+      <material name="cyan">
+        <color rgba="0.3 0.7 0.8 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rm_pioneer_description/meshes/standard_5/camera_base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="camera_base_joint" type="fixed">
+    <origin xyz="0.032 0 0.0405" rpy="0 0 0" />
+    <parent link="pitch_link" />
+    <child link="camera_base_link" />
+  </joint>
+
+  <link name="camera_optical_frame" />
+
+  <joint name="camera_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
+    <parent link="camera_base_link" />
+    <child link="camera_optical_frame" />
+  </joint>
+
+</robot>

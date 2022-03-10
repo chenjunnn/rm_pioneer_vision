@@ -1,0 +1,45 @@
+/mv_camera:
+  ros__parameters:
+    camera_name: mv_camera
+
+    analog_gain: 40
+    exposure_time: 8000
+    flip_image: true
+    gamma: 100
+
+    rgb_gain:
+      b: 110
+      g: 95
+      r: 120
+
+    saturation: 100
+
+/armor_detector:
+  ros__parameters:
+    use_depth: false
+    subscribe_compressed: false
+
+    min_lightness: 170
+
+    light:
+      max_angle: 40.0
+      max_ratio: 0.3
+      min_ratio: 0.1
+
+    armor:
+      max_angle: 35.0
+      max_center_ratio: 1.6
+      min_center_ratio: 0.4
+      min_light_ratio: 0.6
+
+    number_classifier:
+      height_ratio: 1.1
+      weight_ratio: 0.4
+      confidence_threshold: 0.7
+
+/armor_processor:
+  ros__parameters:
+    tracker:
+      max_match_distance: 0.2
+      tracking_threshold: 5
+      lost_threshold: 5
