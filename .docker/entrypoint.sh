@@ -47,6 +47,7 @@ if [ ! "$(ls -A /root/ros_ws/src/ros2_${camera_type}_camera)" ]; then
         *)
             echo "Unknown camera type: $camera_type"
             ;;
+    esac
 fi
 
 source /opt/ros/galactic/setup.zsh
