@@ -33,22 +33,24 @@ case $ROBOT in
         ;;
 esac
 
-if [ ! "$(ls -A /root/ros_ws/src/ros2_${camera_type}_camera)" ]; then
-    case $camera_type in
+case $camera_type in
         mindvision)
-            git clone https://github.com/chenjunnn/ros2_mindvision_camera.git src/ros2_mindvision_camera
+            if [ ! "$(ls -A /root/ros_ws/src/ros2_mindvision_camera)" ]; then
+                git clone https://github.com/chenjunnn/ros2_mindvision_camera.git src/ros2_mindvision_camera
+            fi
             ;;
         hik)
-            git clone https://github.com/nolem-77/ros2_hik_camera.git src/ros2_hik_camera
-            export MVCAM_SDK_PATH=src/ros2_hik_camera/hikSDK
-            export MVCAM_COMMON_RUNENV=src/ros2_hik_camera/hikSDK/lib
-            export LD_LIBRARY_PATH=src/ros2_hik_camera/hikSDK/lib:$LD_LIBRARY_PATH
+            if [ ! "$(ls -A /root/ros_ws/src/ros2_hik_camera)" ]; then
+                git clone https://github.com/nolem-77/ros2_hik_camera.git src/ros2_hik_camera
+                export MVCAM_SDK_PATH=src/ros2_hik_camera/hikSDK
+                export MVCAM_COMMON_RUNENV=src/ros2_hik_camera/hikSDK/lib
+                export LD_LIBRARY_PATH=src/ros2_hik_camera/hikSDK/lib:$LD_LIBRARY_PATH
+            fi
             ;;
         *)
             echo "Unknown camera type: $camera_type"
             ;;
-    esac
-fi
+esac
 
 source /opt/ros/galactic/setup.zsh
 colcon build --symlink-install --packages-select rm_pioneer_description rm_pioneer_bringup ros2_${camera_type}_camera
