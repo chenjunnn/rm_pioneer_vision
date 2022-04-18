@@ -39,13 +39,13 @@ case $camera_type in
         mindvision)
             if [ ! "$(ls -A /root/ros_ws/src/ros2_mindvision_camera)" ]; then
                 git clone https://github.com/chenjunnn/ros2_mindvision_camera.git src/ros2_mindvision_camera
-                colcon build --symlink-install --packages-select ros2_${camera_type}_camera
+                colcon build --symlink-install --packages-select ${camera_type}_camera
             fi
             ;;
         hik)
             if [ ! "$(ls -A /root/ros_ws/src/ros2_hik_camera)" ]; then
                 git clone https://github.com/nolem-77/ros2_hik_camera.git src/ros2_hik_camera
-                colcon build --symlink-install --packages-select ros2_${camera_type}_camera
+                colcon build --symlink-install --packages-select ${camera_type}_camera
 
                 export MVCAM_SDK_PATH=/root/ros_ws/src/ros2_hik_camera/hikSDK
                 export MVCAM_COMMON_RUNENV=/root/ros_ws/src/ros2_hik_camera/hikSDK/lib
