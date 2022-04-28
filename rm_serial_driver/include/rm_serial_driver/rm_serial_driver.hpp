@@ -37,6 +37,10 @@ private:
 
   void reopenPort();
 
+  void requestforChangeColor(uint8_t color);
+
+  bool present_color_;
+
   std::unique_ptr<IoContext> owned_ctx_;
   std::string device_name_;
   std::unique_ptr<drivers::serial_driver::SerialPortConfig> device_config_;
@@ -46,6 +50,8 @@ private:
   rclcpp::Subscription<auto_aim_interfaces::msg::Target>::SharedPtr target_sub_;
 
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr latency_pub_;
+
+  rclcpp::AsyncParametersClient::SharedPtr auto_aim_param_client_;
 
   std::thread receive_thread_;
 };

@@ -23,6 +23,7 @@ namespace rm_serial_driver
 {
 RMSerialDriver::RMSerialDriver(const rclcpp::NodeOptions & options)
 : Node("rm_serial_driver", options),
+  present_color_(-1),
   owned_ctx_{new IoContext(2)},
   serial_driver_{new drivers::serial_driver::SerialDriver(*owned_ctx_)}
 {
@@ -33,6 +34,21 @@ RMSerialDriver::RMSerialDriver(const rclcpp::NodeOptions & options)
   // Create Publisher
   joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
     "/joint_states", rclcpp::QoS(rclcpp::KeepLast(1)));
+
+  auto_aim_param_client_ = std::make_shared<rclcpp::AsyncParametersClient>(this, "armor_detector");
+
+  // get remote parameters
+  RCLCPP_INFO(this->get_logger(), "Try to get remote param");
+  while (!auto_aim_param_client_->service_is_ready()) {
+    rclcpp::sleep_for(std::chrono::seconds(1));
+  }
+  auto_aim_param_client_->get_parameters(
+    {"detect_color"}, [this](std::shared_future<std::vector<rclcpp::Parameter>> future) {
+      future.wait();
+      auto result = future.get();
+      present_color_ = result.at(1).as_int();
+      RCLCPP_INFO(this->get_logger(), "Present color: %d.", present_color_);
+    });
 
   try {
     serial_driver_->init_port(device_name_, *device_config_);
@@ -97,6 +113,10 @@ void RMSerialDriver::receiveData()
           joint_state.position.push_back(packet.pitch);
           joint_state.position.push_back(packet.yaw);
           joint_state_pub_->publish(joint_state);
+
+          if (packet.robot_color != present_color_) {
+            requestforChangeColor(packet.robot_color);
+          }
         } else {
           RCLCPP_ERROR(get_logger(), "CRC error!");
         }
@@ -115,6 +135,8 @@ void RMSerialDriver::sendData(const auto_aim_interfaces::msg::Target::SharedPtr 
   try {
     SendPacket packet;
     packet.target_found = msg->target_found;
+    packet.target_color = present_color_ == 0;
+    packet.task_mode = 0;
     packet.x = msg->position.x;
     packet.y = msg->position.y;
     packet.z = msg->position.z;
@@ -232,6 +254,30 @@ void RMSerialDriver::reopenPort()
       rclcpp::sleep_for(std::chrono::seconds(1));
       reopenPort();
     }
+  }
+}
+
+void RMSerialDriver::requestforChangeColor(uint8_t color)
+{
+  bool set_auto_aim_success = false;
+  // Parameter Client
+  if (auto_aim_param_client_->service_is_ready()) {
+    auto_aim_param_client_->set_parameters(
+      {rclcpp::Parameter("detect_color", color == 0 ? 1 : 0)},
+      [&](std::shared_future<std::vector<rcl_interfaces::msg::SetParametersResult>> future) {
+        future.wait();
+        auto results = future.get();
+        set_auto_aim_success = results[0].successful;
+      });
+    if (set_auto_aim_success) {
+      present_color_ = color;
+      RCLCPP_INFO(get_logger(), "Successfully set color: %d", color);
+    } else {
+      RCLCPP_ERROR(get_logger(), "Failed to set color");
+    }
+  } else {
+    RCLCPP_ERROR(get_logger(), "remote parameter server is not ready");
+    rclcpp::sleep_for(std::chrono::seconds(1));
   }
 }
 

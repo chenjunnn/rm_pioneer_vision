@@ -13,6 +13,9 @@ namespace rm_serial_driver
 struct ReceivePacket
 {
   uint8_t header = 0x5A;
+  uint8_t robot_color : 1;
+  uint8_t task_mode : 2;
+  uint8_t reserved : 5;
   float pitch;
   float yaw;
   uint16_t checksum = 0;
@@ -21,7 +24,10 @@ struct ReceivePacket
 struct SendPacket
 {
   uint8_t header = 0xA5;
-  bool target_found;
+  bool target_found : 1;
+  bool target_color : 1;
+  uint8_t task_mode : 2;
+  uint8_t digital : 4;
   float x;
   float y;
   float z;
