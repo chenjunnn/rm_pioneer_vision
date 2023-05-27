@@ -46,11 +46,14 @@ def generate_launch_description():
 
     hik_camera_node = get_camera_node('hik_camera', 'hik_camera::HikCameraNode')
     mv_camera_node = get_camera_node('mindvision_camera', 'mindvision_camera::MVCameraNode')
+    galaxy_camera_node = get_camera_node('galaxy_camera', 'galaxy_camera::GalaxyCameraNode')
 
     if (launch_params['camera'] == 'hik'):
         cam_detector = get_camera_detector_container(hik_camera_node)
     elif (launch_params['camera'] == 'mv'):
         cam_detector = get_camera_detector_container(mv_camera_node)
+    elif (launch_params['camera'] == 'galaxy'):
+        cam_detector = get_camera_detector_container(galaxy_camera_node)
 
     serial_driver_node = Node(
         package='rm_serial_driver',
